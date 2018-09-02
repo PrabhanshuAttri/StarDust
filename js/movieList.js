@@ -46,7 +46,7 @@ class MovieList {
   }
 
   getSuggestions() {
-    return this.state.suggestions.slice(0,20);
+    return this.state.suggestions;
   }
 
   getIds() {

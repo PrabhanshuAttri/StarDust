@@ -12,7 +12,7 @@
   --font-size-xl: 1.4rem;
   --font-size-xxl: 1.6rem;
   --font-size-xxxl: 1.8rem;
-  --font-size-xxxxl: 2rem;
+  --font-size-xxxxl: 3rem;
   --border-radius: 5px;
 }
 
@@ -25,7 +25,7 @@ html, body {
 }
 
 body {
-  background-image: linear-gradient(221deg,#633ea5 13%,#36215a 65%);
+  background-image: linear-gradient(270deg,#633ea5 13%,#36215a 65%);
 }
 
 .root {
@@ -54,8 +54,9 @@ nav {
 }
 
 .logo, .logo:hover {
-  font-size: var(--font-size-xxxxl);
+  font-weight: 600;
   color: var(--color-white);
+  font-size: var(--font-size-xxxxl);
 }
 
 .content {

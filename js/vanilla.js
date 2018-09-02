@@ -90,13 +90,13 @@ class StarDust {
 
   getSuggestionElements(query) {
     const allMovies = this.state.moviesList.getSuggestions();
-    const movieSuggestions = allMovies.filter((m) => (m.toLowerCase().includes(query.toLowerCase())));
-
+    let movieSuggestions = allMovies.filter((m) => (m.toLowerCase().includes(query.toLowerCase())));
+    movieSuggestions = movieSuggestions.slice(0,20);
+    
     let fragment = document.createDocumentFragment();
 
     for(let movie of movieSuggestions) {
       let sugg = document.createElement('div');
-      sugg.id = 'block';
       sugg.className = 'sugg';
       sugg.innerHTML = movie.trim();
       fragment.appendChild(sugg);
@@ -144,7 +144,10 @@ class StarDust {
   document.addEventListener("click", function (e) {
     if (e.target.id !== 'searchInput') {
       if (e.target.classList.toString() == 'sugg') {
-        document.getElementById('searchInput').value = e.target.innerHTML;
+        const input = document.getElementById('searchInput');
+        input.value = e.target.innerHTML;
+        input.focus();
+
       }
       document.getElementById('searchInput').parentNode.parentNode.classList.remove('suggestion-dropdown');
     } else if (e.target.value > 0) {
