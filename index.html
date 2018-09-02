@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>StarDust: A movie search engine</title>
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web:400,600" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+
+  <body>
+    <div class="root">
+      <nav>
+        <a href="index.html" class="logo">StarDust</a>
+      </nav>
+      <section class="content">
+        <div class="search">
+          <form id="searchForm" autocomplete="off">
+            <input
+              type="text"
+              id="searchInput"
+              name="searchInput"
+              placeholder="search a movie"
+            >
+            <button id="searchButton" type="submit">
+              <i class="fas fa-search"></i>
+            </button>
+          </form>
+          <div id="movieSuggestions">
+          </div>
+        </div>
+      </section>
+      <section id="progress" class="content">
+        <div></div>
+      </section>
+      <section id="moviesGrid" class="content movies-grid">
+      </section>
+      <footer>
+        <a href="#">Privacy</a>
+      </footer>
+    </div>
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"
+      integrity="sha384-kW+oWsYx3YpxvjtZjFXqazFpA7UP/MbiY4jvs+RWZo2+N94PFZ36T6TFkc9O3qoB"
+      crossorigin="anonymous"
+    ></script>
+    <script type="text/javascript" src="js/movie.js"></script>
+    <script type="text/javascript" src="js/movieList.js"></script>
+    <script type="text/javascript" src="js/vanilla.js"></script>
+  
+  </body>
+</html>
