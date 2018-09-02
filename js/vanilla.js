@@ -1,13 +1,23 @@
 'use strict'
 
+const ORDER = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+}
+
+const DEFAULTS = {
+  SORTBY: 'movie_title',
+  ORDER: ORDER.ASC,
+}
+
 class StarDust {
-  constructor() {
+  constructor(sortby = DEFAULTS.SORTBY, order = DEFAULTS.ORDER,) {
     this.state = {
-      moviesArray: [],
-      moviesList: new MovieList([]),
-      order: 'ASC',
-      sortby: '',
+      order,
+      sortby,
       searchQuery: '',
+      moviesArray: [],
+      moviesList: new MovieList([], sortby, order),
     }
   }
 
@@ -78,7 +88,7 @@ class StarDust {
     return movieElement;
   }
 
-  renderMoviesList(moviesList) {
+  getMoviesList(moviesList) {
     let fragment = document.createDocumentFragment();
     const ids = moviesList.getIds();
     for(let id of ids) {
@@ -90,9 +100,13 @@ class StarDust {
 
   getSuggestionElements(query) {
     const allMovies = this.state.moviesList.getSuggestions();
-    let movieSuggestions = allMovies.filter((m) => (m.toLowerCase().includes(query.toLowerCase())));
-    movieSuggestions = movieSuggestions.slice(0,20);
-    
+    let movieSuggestions = allMovies
+      .filter((m) => (
+        m.toLowerCase().includes(query.toLowerCase())
+        || m.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().indexOf(query) != -1
+      ))
+      .slice(0,20);
+
     let fragment = document.createDocumentFragment();
 
     for(let movie of movieSuggestions) {
@@ -105,21 +119,92 @@ class StarDust {
     return fragment;
   }
 
+  getSortElements() {
+    const sortByItems = this.state.moviesList.getSortByItems();
+
+    const buttonClick = (e) => {
+      const element = e.target;
+      const sort = element.getAttribute('sort');
+      const order = element.getAttribute('order');
+
+      if(sort && order) {
+        const sortActive = 'sort-active';
+        document.querySelectorAll('.' + sortActive).forEach((el) => {
+          el.classList.remove(sortActive)
+        });
+        element.classList.add(sortActive);
+        this.setSortBy(sort);
+        this.setOrder(order);
+        this.updateUI();
+      }
+    };
+
+    const fragment = document.createDocumentFragment();
+
+    const { sortby, order } = this.state;
+    Object.keys(sortByItems).forEach((s) => {
+      const incClassName = `btn btn-outline-primary ${(sortby === s && order === ORDER.ASC)
+        ? 'sort-active' : ''}`;
+      const descClassName = `btn btn-outline-primary ${(sortby === s && order === ORDER.DESC)
+        ? 'sort-active' : ''}`;
+      
+      const btnInc = document.createElement('button');
+      btnInc.className = incClassName;
+      btnInc.type = 'button';
+      btnInc.setAttribute('sort', s);
+      btnInc.setAttribute('order', ORDER.ASC);
+      btnInc.addEventListener('click', buttonClick);
+      btnInc.innerHTML = `${sortByItems[s]} <i class="fas fa-sort-amount-up"></i>`;
+      fragment.appendChild(btnInc);
+
+      const btnDec = document.createElement('button');
+      btnDec.className = descClassName;
+      btnDec.type = 'button';
+      btnDec.setAttribute('sort', s);
+      btnDec.setAttribute('order', ORDER.DESC);
+      btnDec.addEventListener('click', buttonClick);
+      btnDec.innerHTML = `${sortByItems[s]} <i class="fas fa-sort-amount-down"></i>`;
+      fragment.appendChild(btnDec);
+    });
+    return fragment;
+  }
+
+  updateSortElements() {
+    const sort = document.getElementById('sort');
+    sort.innerHTML = '';
+    sort.appendChild(this.getSortElements());
+  }
+
   updateUI() {
     const moviesListElement = document.getElementById('moviesGrid');
-    moviesListElement.innerHTML = "";
-    moviesListElement.appendChild(this.renderMoviesList(this.state.moviesList));
+    Promise.resolve()
+      .then(() => {
+        moviesListElement.innerHTML = "";
+        const progressElement = document.createElement('section');
+        progressElement.id = 'progress';
+        progressElement.className = 'class';
+        progressElement.innerHTML = '<div></div>';
+        progressElement.style.display = 'flex';
+        moviesListElement.appendChild(progressElement);
+      })
+      .then(() => {
+        const { moviesArray, sortby, order, searchQuery } = this.state;
+        this.state.moviesList = new MovieList(moviesArray, sortby, order, searchQuery);
+        moviesListElement.innerHTML = "";
+        moviesListElement.appendChild(this.getMoviesList(this.state.moviesList));
+      });
   }
 
   setUI() {
-    const { moviesArray, sortby, order, searchQuery } = this.state;
-    this.state.moviesList = new MovieList(moviesArray, sortby, order, searchQuery);
     this.updateUI();
+    this.updateSortElements();
     
     const moviesListElement = document.getElementById('moviesGrid');
     moviesListElement.classList.add('show');
     document.getElementById('searchForm').style.display = 'flex';
     document.getElementById('progress').style.display = 'none';
+
+    //console.log(this.state.moviesList.getLanguages());
   }
 }
 
@@ -165,8 +250,7 @@ class StarDust {
     .then(function(response) {
       return response.json();
     })
-    .then(function(jsonData) {
-      const movies = jsonData;//.slice(0,100);
+    .then(function(movies) {
       stardust.setMoviesArray(movies);
       stardust.setUI();
     })

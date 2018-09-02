@@ -1,19 +1,5 @@
-const ORDER = {
-  ASC: 'ASC',
-  DESC: 'DESC',
-}
-
-const DEFAULTS = {
-  SORTBY: 'movie_title',
-  ORDER: ORDER.ASC,
-}
-
 class MovieList {
-  constructor(data, sortby = DEFAULTS.SORTBY, order = DEFAULTS.ORDER, query = '') {
-    // handle empty params
-    sortby = sortby.length > 0 ? sortby : DEFAULTS.SORTBY;
-    order = order.length > 0 ? order : DEFAULTS.ORDER;
-
+  constructor(data, sortby, order, query = '') {
     data.sort(this.dynamicSort(sortby, order));
     let movies = data
       .reduce((unique, o) => {
@@ -28,10 +14,18 @@ class MovieList {
       }, {});
 
     let results = query.length > 0 ? this.searchByName(movies, query) : Object.keys(movies);
+    const languages = data.reduce((acc, item) => {
+      const language = item.language;
+      if(acc.indexOf(language) === -1 && language.length > 0) {
+        acc.push(language);
+      }
+      return acc;
+    }, []);
 
     this.state = {
       movies,
       results,
+      languages,
       suggestions: data.map((m) => m.movie_title),
       count: data.length,
     };
@@ -55,6 +49,17 @@ class MovieList {
 
   get(id) {
     return (id in this.state.movies) ? new Movie(this.state.movies[id]) : undefined;
+  }
+
+  getLanguages() {
+    return this.state.languages;
+  }
+
+  getSortByItems() {
+    return ({
+      movie_title: 'Movie Title',
+      title_year: 'Title Year',
+    });
   }
 
   dynamicSort(property, order = ORDER.ASC) {
